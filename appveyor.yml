@@ -3,14 +3,14 @@ build: false
 clone_folder: C:\projects\ng-upload-chunked
 
 install:
-  - cinst -y php -version 7.0.27 --ignore-dependencies
+  - cinst -y php --version 7.0.27 --ignore-dependencies
   - cd c:\tools\php70
   - copy php.ini-production php.ini
   - echo date.timezone="UTC" >> php.ini
   - echo extension_dir=ext >> php.ini
   - echo extension=php_openssl.dll >> php.ini
   - echo extension=php_curl.dll >> php.ini
-  - SET PATH=C:\tools\php;%PATH%
+  - SET PATH=C:\tools\php70;%PATH%
   - cd C:\projects\ng-upload-chunked
   - php -r "readfile('http://getcomposer.org/installer');" | php
   - php composer.phar install
