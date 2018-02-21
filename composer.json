@@ -1,8 +1,8 @@
 {
     "name": "hgouveia/ng-upload-chunked",
-    "description": "Php implementation of the file chunked upload for ng-upload",
+    "description": "Php implementation of the file chunked upload for the angular directive ng-file-upload",
     "keywords": [
-        "ng-upload",
+        "ng-file-upload",
         "upload",
         "chunked",
         "php"
