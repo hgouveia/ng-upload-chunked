@@ -1,0 +1,41 @@
+{
+    "name": "hgouveia/ng-upload-chunked",
+    "description": "Php implementation of the file chunked upload for ng-upload",
+    "keywords": [
+        "ng-upload",
+        "upload",
+        "chunked",
+        "php"
+    ],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jose De Gouveia",
+            "email": "dhgouveia@hotmail.com"
+        }
+    ],
+    "autoload": {
+        "classmap": [
+            "src/"
+        ]
+    },
+    "require": {
+        "php": ">=5.4"
+    },
+    "require-dev": {
+        "peridot-php/peridot": "^1.19",
+        "peridot-php/leo": "^1.6",
+        "squizlabs/php_codesniffer": "^3.2"
+    },
+    "suggest": {
+        "peridot-php/peridot-code-coverage-reporters": "Required to test code coverage (only php>=7.0)"        
+    },
+    "scripts": {
+        "test": [
+            "composer install",
+            "./vendor/bin/phpcs --standard=psr2 src/",
+            "./vendor/bin/peridot test/"
+        ]
+    }
+}

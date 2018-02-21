@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>File Upload</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Example Based on : http://jsfiddle.net/danialfarid/0mz6ff9o/135/ -->
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular.min.js"></script>
+    <script type="text/javascript" src="https://angular-file-upload.appspot.com/js/ng-file-upload-shim.js"></script>
+    <script type="text/javascript" src="https://angular-file-upload.appspot.com/js/ng-file-upload.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+    <style type="text/css">
+        .jumbotron .progress{
+            border:1px solid white;
+            margin-bottom: 1em;
+        }
+        .wrapper{
+            display: block;
+            margin-bottom: 1em;
+        }
+    </style>
+</head>
+
+<body ng-app="fileUpload" ng-controller="MyCtrl">
+
+    <div class="container">
+        <div class="jumbotron mt-3">
+            <!-- SELECT/UPLOAD -->
+            <div class="wrapper">
+                <h1>NG Upload Chunked</h1>
+                <p>File: {{file.name}}</p>
+                <button class="btn btn-lg btn-primary" 
+                    type="file" 
+                    ngf-select="selectFile($file, $invalidFiles)"
+                    ng-disabled="uploader.isUploadInProgress()"
+                    accept="*/*">
+                    Select File
+                </button>
+                <button class="btn btn-lg btn-primary" 
+                    type="button" 
+                    ng-disabled="uploader.isUploadInProgress()"
+                    ng-click="uploadFile($file, $invalidFiles)">
+                    Upload
+                </button>
+            </div>
+            
+            <!-- PROGRESS -->
+            <div ng-show="uploader.isUploadInProgress()" class="wrapper">
+                <div class="progress">
+                    <div class="progress-bar" 
+                        role="progressbar" 
+                        ng-style="{ 'width': file.progress + '%' }" 
+                        aria-valuenow="{{file.progress}}" 
+                        aria-valuemin="0"
+                        aria-valuemax="100" ng-bind="file.progress + '%'">
+                    </div>
+                </div>
+                <div ng-show="!isFinished">
+                    <button class="btn btn-sm btn-primary" 
+                        type="button" ng-click="pause()">
+                        {{ isPause ? 'Resume' : 'Pause' }}
+                    </button>
+                    <button class="btn btn-sm btn-primary" 
+                        type="button" ng-click="stop()">
+                        Stop
+                    </button>                
+                </div>
+            </div>
+
+            <!-- ALERT -->
+            <div class="wrapper">              
+                <div class="alert alert-success" role="alert" ng-if="isFinished">
+                  Done!
+                </div>
+                <div class="alert alert-danger" role="alert" ng-if="errFile.$error">
+                    {{file.name}} : {{errFile.name}}<br />
+                    {{errFile.$error}}<br /> 
+                    {{errFile.$errorParam}}<br />
+                    {{errorMsg}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+        var app = angular.module('fileUpload', ['ngFileUpload']);
+
+        app.controller('MyCtrl', ['$scope', 'Upload', '$timeout', function ($scope, Upload, $timeout) {
+            var uploadHandler;
+            var _uniqueId = '';
+            $scope.uploader = Upload;
+            $scope.isPause = false;
+            $scope.isFinished = false;
+            $scope.selectFile = function (file, errFiles) {
+                $scope.file = file;
+                $scope.errFile = errFiles && errFiles[0];
+            }
+
+            $scope.uploadFile = function () {
+                var file = $scope.file;
+                var host = window.location.href.replace("index.html", "");
+                $scope.isFinished = false;
+
+                // Only generate an id on the upload process
+                if (!$scope.isPause) {
+                    _uniqueId = (Math.random().toString(16) + '000000000').substr(2, 14) + new Date().getTime();
+                }
+
+                if (file) {
+                    uploadHandler = Upload.upload({
+                        url: host + 'handler.php?q=upload',
+                        resumeSizeUrl: host + 'handler.php?q=status&_uniqueId=' + _uniqueId,
+                        resumeChunkSize: '10MB',  //bigger chunk, faster upload
+                        data: {
+                            file: file,
+                            _uniqueId: _uniqueId
+                        }
+                    });
+
+                    uploadHandler
+                        .then(function uploaded(resp) {
+                            $timeout(function () {
+                                $scope.isFinished = true;
+                                file.result = resp.data;
+                            });
+                        }, function err(resp) {
+                            $timeout(function () {
+                                if (resp.status > 0) {
+                                    $scope.errorMsg = err.status + ': ' + err.data;
+                                }
+                            });
+                        }, function progress(evt) {
+                            if (!evt.lengthComputable) {
+                                return;
+                            }
+                            file.progress = Math
+                                .floor(evt.loaded / evt.total * 100)
+                                .toFixed(0);
+                        });
+
+                    uploadHandler.catch(function (err) {
+                        console.log(err);
+                    });
+                }
+            };
+
+            $scope.pause = function () {
+                if (uploadHandler) {
+                    if ($scope.isPause) {
+                        $scope.uploadFile();
+                        $scope.isPause = false;
+                    } else {
+                        // pause is basically 
+                        // an alias to 'abort'
+                        uploadHandler.pause();
+                        $scope.isPause = true;
+                    }
+                }
+            };
+
+            $scope.stop = function () {
+                if (uploadHandler) {
+                    uploadHandler.abort();
+                    uploadHandler = null;
+                }
+            };
+        }]);
+    </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+version: "{branch}-{build}"
+build: false
+clone_folder: C:\projects\ng-upload-chunked
+
+install:
+  - cinst --allow-empty-checksums php -version 7.0.7 -y
+  - cd c:\tools\php
+  - copy php.ini-production php.ini
+  - echo date.timezone="UTC" >> php.ini
+  - echo extension_dir=ext >> php.ini
+  - echo extension=php_openssl.dll >> php.ini
+  - echo extension=php_curl.dll >> php.ini
+  - SET PATH=C:\tools\php;%PATH%
+  - cd C:\projects\ng-upload-chunked
+  - php -r "readfile('http://getcomposer.org/installer');" | php
+  - php composer.phar install
+  - vendor\bin\phpcs.bat --config-set ignore_warnings_on_exit 1
+
+test_script:
+  - cd C:\projects\ng-upload-chunked
+  - vendor\bin\phpcs.bat --standard=psr2 src/
+  - vendor\bin\peridot.bat test/
