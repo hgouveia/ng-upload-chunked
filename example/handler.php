@@ -22,10 +22,12 @@ $nguc = new \NGUC\NgUploadChunked([
 switch ($_GET['q']) {
     case "upload":
         try {
+            // Contains the information of the current chunk
             $chunk = new \NGUC\NgFileChunk();
             $chunk->populate($_POST['_uniqueId'], $_FILES['file']['name']);
+            // Process the upload
             $nguc->upload($chunk);
-        } catch (NGUCException $e) {
+        } catch (\NGUC\NGUCException $e) {
             echo "ERROR: " . $e->getCode() . " - " . $e->getMessage();
         }
         break;

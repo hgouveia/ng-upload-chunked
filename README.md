@@ -14,7 +14,7 @@ Clone or download this repo, see the example
 
 With Composer
 ```
-$ composer install hgouveia/ng-upload-chunked
+$ composer require hgouveia/ng-upload-chunked
 ```
 
 ## Example of Usage
@@ -25,7 +25,7 @@ Check [example](example/) folder
 
 ```
 $ ./vendor/bin/peridot test
-``` 
+```
 
 or if npm is available
 
