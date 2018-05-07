@@ -1,6 +1,6 @@
 {
     "name": "ng-upload-chunked",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Php implementation of the file chunked upload for the angular directive ng-file-upload",
     "scripts": {
         "lint": "./vendor/bin/phpcs --standard=psr2 src/",
@@ -9,7 +9,8 @@
         "test:coverage": "./vendor/bin/peridot  test/ -c peridot.config.php --reporter text-code-coverage",
         "test:coverage:html": "./vendor/bin/peridot  test/ -c peridot.config.php --reporter html-code-coverage",
         "install:composer": "curl -sS https://getcomposer.org/installer | php",
-        "install:vendor": "php composer.phar install"
+        "install:vendor": "php composer.phar install",
+        "generate:doc": "./vendor/bin/phpdoc-md generate ./src > API.md"
     },
     "keywords": [
         "ng-file-upload",
@@ -18,5 +19,13 @@
         "php"
     ],
     "author": "Jose De Gouveia <dhgouveia@hotmail.com>",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/hgouveia/ng-upload-chunked"
+    },
+    "bugs": {
+        "url": "https://github.com/hgouveia/ng-upload-chunked/issues"
+    },
+    "homepage": "https://github.com/hgouveia/ng-upload-chunked",
     "license": "MIT"
 }

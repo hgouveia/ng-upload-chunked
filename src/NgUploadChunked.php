@@ -23,6 +23,7 @@ class NgUploadChunked
      */
     protected $defaultConfig = [
         "ext" => ".part",
+        "fileInputName" => "file",
         "directoryPermission" => 0755,
         "readChunkSize" => 1048576, // 1MB
         "uploadDirectory" => "",
@@ -133,7 +134,8 @@ class NgUploadChunked
 
         // if empty, probably the client exited the page while uploading
         // or didnt attach any file
-        if (empty($_FILES['file']['tmp_name'])) {
+        $key = $this->config['fileInputName'];
+        if (empty($_FILES[$key]['tmp_name'])) {
             $filePath = $this->getFilePath($chunk->fileId);
             $this->clean($filePath);
             throw new NGUCException(
@@ -168,7 +170,8 @@ class NgUploadChunked
     protected function readUploadedChunk()
     {
         $data = "";
-        $uploadedChunkPath = $_FILES['file']['tmp_name'];
+        $key = $this->config['fileInputName'];
+        $uploadedChunkPath = $_FILES[$key]['tmp_name'];
         $uploadHandler = @\fopen($uploadedChunkPath, "rb");
 
         if (!$uploadHandler) {

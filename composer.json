@@ -26,7 +26,8 @@
     "require-dev": {
         "peridot-php/peridot": "^1.19",
         "peridot-php/leo": "^1.6",
-        "squizlabs/php_codesniffer": "^3.2"
+        "squizlabs/php_codesniffer": "^3.2",
+        "victorjonsson/markdowndocs": "^1.3"
     },
     "suggest": {
         "peridot-php/peridot-code-coverage-reporters": "Required to test code coverage (only php>=7.0)"        
