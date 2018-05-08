@@ -68,6 +68,20 @@ class NgUploadChunked
     }
 
     /**
+     * Abort the current upload
+     * by deleting the current file been uploaded
+     *
+     * @param string $fileId
+     * @throws NGUCException
+     * @return boolean
+     */
+    public function abort($fileId)
+    {
+        $filePath = $this->getFilePath($fileId);
+        $this->clean($filePath);
+        return true;
+    }
+    /**
      * Handle the upload by chunk
      *
      * @param NgFileChunk $chunk

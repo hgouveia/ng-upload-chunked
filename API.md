@@ -36,7 +36,8 @@
 
 | Visibility | Function |
 |:-----------|:---------|
-| public | <strong>__construct(</strong><em>array</em> <strong>$config=array()</strong>)</strong> : <em>void</em><br /><em>$defaultConfig = [ "ext" => ".part", "fileInputName" => "file", "directoryPermission" => 0755, "readChunkSize" => 1048576, // 1MB "uploadDirectory" => "", "tempDirectory" => "", ];</em> |
+| public | <strong>__construct(</strong><em>array</em> <strong>$config=array()</strong>)</strong> : <em>void</em> |
+| public | <strong>abort(</strong><em>string</em> <strong>$fileId</strong>)</strong> : <em>boolean</em><br /><em>Abort the current upload by deleting the current file been uploaded</em> |
 | public | <strong>getConfig()</strong> : <em>array $config</em> |
 | public | <strong>getUploadedSize(</strong><em>string</em> <strong>$fileId</strong>)</strong> : <em>int</em><br /><em>Gets the current size fo the file that is being uploaded in chunks</em> |
 | public | <strong>upload(</strong><em>[\NGUC\NgFileChunk](#class-ngucngfilechunk)</em> <strong>$chunk</strong>)</strong> : <em>void</em><br /><em>Handle the upload by chunk</em> |

@@ -21,12 +21,10 @@ describe("\\NGUC\\NgUploadChunked", function () {
             "tempDirectory" => $this->TEMP_DIR,
         ]);
         $this->chunk = new \NGUC\NgFileChunk(
-            $this->fileId, //fileId
-            $this->fileName, // name
-            20, // size
-            $this->fileSize, // currentSize
-            0, // number
-            $this->fileSize// totalSize
+            $this->fileId,
+            $this->fileName, 20,
+            $this->fileSize, 0,
+            $this->fileSize
         );
     });
 
@@ -54,18 +52,36 @@ describe("\\NGUC\\NgUploadChunked", function () {
             $_FILES['file']['tmp_name'] = $this->chunkPath;
             // we fake the totalSize so the file is not moved
             $this->chunk = new \NGUC\NgFileChunk(
-                $this->fileIdInProgress, //fileId
-                $this->fileName, // name
-                20, // size
-                $this->fileSize, // currentSize
-                0, // number
-                $this->fileSize * 2// totalSize
+                $this->fileIdInProgress,
+                $this->fileName, 20,
+                $this->fileSize, 0,
+                $this->fileSize * 2
             );
             // we make a unfinished upload
             $this->nguc->upload($this->chunk);
 
             $res = $this->nguc->getUploadedSize($this->fileIdInProgress);
             expect($res)->to->be->equal(17);
+        });
+    });
+
+    describe("->abort", function () {
+
+        it("should return true after remove the file", function () {
+            $_FILES['file']['name'] = $this->fileName;
+            $_FILES['file']['tmp_name'] = $this->chunkPath;
+
+            $this->chunk = new \NGUC\NgFileChunk(
+                $this->fileIdInProgress,
+                $this->fileName, 20,
+                $this->fileSize, 0,
+                $this->fileSize * 2
+            );
+
+            $this->nguc->upload($this->chunk);
+
+            $res = $this->nguc->abort($this->fileIdInProgress);
+            expect($res)->to->be->true;
         });
     });
 
