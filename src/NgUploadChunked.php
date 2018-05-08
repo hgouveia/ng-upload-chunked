@@ -36,6 +36,16 @@ class NgUploadChunked
      */
     public function __construct(array $config = [])
     {
+        $this->setConfig($config);
+    }
+
+    /**
+     *
+     * @param array $config
+     * @throws NGUCException
+     */
+    public function setConfig(array $config = [])
+    {
         $this->config = \array_merge($this->defaultConfig, $config);
     }
 

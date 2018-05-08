@@ -28,6 +28,19 @@ describe("\\NGUC\\NgUploadChunked", function () {
         );
     });
 
+    describe("->setConfig", function () {
+        beforeEach(function () {
+            $this->_nguc = new \NGUC\NgUploadChunked();
+        });
+
+        it("should't fail to set the config", function () {
+            $this->_nguc->setConfig([
+                "uploadDirectory" => $this->UPLOAD_DIR,
+                "tempDirectory" => $this->TEMP_DIR,
+            ]);
+        });
+    });
+
     describe("->upload", function () {
         beforeEach(function () {
             $_FILES['file']['name'] = $this->fileName;
@@ -66,7 +79,6 @@ describe("\\NGUC\\NgUploadChunked", function () {
     });
 
     describe("->abort", function () {
-
         it("should return true after remove the file", function () {
             $_FILES['file']['name'] = $this->fileName;
             $_FILES['file']['tmp_name'] = $this->chunkPath;
