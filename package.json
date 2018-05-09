@@ -1,6 +1,6 @@
 {
     "name": "ng-upload-chunked",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Php implementation of the file chunked upload for the angular directive ng-file-upload",
     "scripts": {
         "lint": "./vendor/bin/phpcs --standard=psr2 src/",

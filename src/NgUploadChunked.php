@@ -19,6 +19,18 @@ class NgUploadChunked
 
     /**
      *
+     * @var boolean
+     */
+    protected $finished = false;
+
+    /**
+     *
+     * @var [NgFileChunk]
+     */
+    protected $currentChunk = null;
+
+    /**
+     *
      * @var array
      */
     protected $defaultConfig = [
@@ -59,6 +71,15 @@ class NgUploadChunked
     }
 
     /**
+     *
+     * @return boolean $finished
+     */
+    public function isFinished()
+    {
+        return $this->finished;
+    }
+
+    /**
      * Gets the current size fo the file
      * that is being uploaded in chunks
      *
@@ -68,6 +89,7 @@ class NgUploadChunked
     public function getUploadedSize($fileId)
     {
         $size = 0;
+        $this->prepareDirectories();
         $path = $this->getFilePath($fileId);
 
         if (\file_exists($path)) {
@@ -87,24 +109,29 @@ class NgUploadChunked
      */
     public function abort($fileId)
     {
+        $this->prepareDirectories();
+        $this->finished = false;
         $filePath = $this->getFilePath($fileId);
         $this->clean($filePath);
+
         return true;
     }
     /**
-     * Handle the upload by chunk
+     * Handle the uploaded by chunk
      *
      * @param NgFileChunk $chunk
      * @throws NGUCException
      * @return void
      */
-    public function upload(NgFileChunk $chunk)
+    public function process(NgFileChunk $chunk)
     {
         $this->prepareDirectories();
         $this->validateChunk($chunk);
+        $this->finished = false;
+        $this->currentChunk = $chunk;
 
         $filePath = $this->getFilePath($chunk->fileId);
-        $destPath = $this->config['uploadDirectory'] . DIRECTORY_SEPARATOR . $chunk->name;
+        $destPath = $this->getUploadPath();
 
         // 1. Read Uploaded chunk
         $data = $this->readUploadedChunk();
@@ -114,6 +141,20 @@ class NgUploadChunked
 
         // 3. Check if file has been uploaded
         $this->moveWhenFinished($filePath, $destPath, $chunk->totalSize);
+    }
+
+    /**
+     * Gets the path where the file will be stored
+     * after is fully uploaded
+     *
+     * @return void
+     */
+    public function getUploadPath()
+    {
+        $destFolder = $this->config['uploadDirectory'] . DIRECTORY_SEPARATOR;
+        return ($this->currentChunk)
+        ? $destFolder . $this->currentChunk->name
+        : $destFolder;
     }
 
     /**
@@ -141,6 +182,7 @@ class NgUploadChunked
             if (!@\rename($filePath, $destPath)) {
                 throw $moveEx;
             }
+            $this->finished = true;
         }
     }
 
@@ -264,9 +306,7 @@ class NgUploadChunked
         // if not defined use default one
         if (empty($this->config['tempDirectory'])) {
             $this->config['tempDirectory'] = $defaultTempFolder;
-        }
-
-        if (!@\file_exists($this->config['tempDirectory'])) {
+        } else if (!@\file_exists($this->config['tempDirectory'])) {
             if (!@\mkdir($this->config['tempDirectory'], $chmod, true)) {
                 throw new NGUCException(
                     "Temporal directory '{$this->config['tempDirectory']} with permission '{$chmod}', " .
@@ -277,7 +317,11 @@ class NgUploadChunked
         }
 
         // Upload Directory
-        if (!@\file_exists($this->config['uploadDirectory'])) {
+        if (empty($this->config['uploadDirectory'])) {
+            $this->config['uploadDirectory'] = !empty($_SERVER['DOCUMENT_ROOT'])
+            ? $_SERVER['DOCUMENT_ROOT']
+            : getcwd();
+        } else if (!@\file_exists($this->config['uploadDirectory'])) {
             if (!@\mkdir($this->config['uploadDirectory'], $chmod, true)) {
                 throw new NGUCException(
                     "Upload directory '{$this->config['tempDirectory']} with permission '{$chmod}', " .
@@ -299,7 +343,7 @@ class NgUploadChunked
         $sysTempDir = \sys_get_temp_dir();
         $phpTempDir = \ini_get("upload_tmp_dir");
         $tempDir = !empty($phpTempDir) ? $phpTempDir : $sysTempDir;
-        return $tempDir . DIRECTORY_SEPARATOR . "nguc";
+        return $tempDir;
     }
 
     /**

@@ -26,7 +26,13 @@ switch ($_GET['q']) {
             $chunk = new \NGUC\NgFileChunk();
             $chunk->populate($_POST['_uniqueId'], $_FILES['file']['name']);
             // Process the upload
-            $nguc->upload($chunk);
+            $nguc->process($chunk);
+
+            // response the path when finished
+            if ($nguc->isFinished()) {
+                echo $nguc->getUploadPath();
+            }
+
         } catch (\NGUC\NGUCException $e) {
             echo "ERROR: " . $e->getCode() . " - " . $e->getMessage();
         }

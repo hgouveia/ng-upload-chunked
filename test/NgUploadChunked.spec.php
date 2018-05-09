@@ -41,14 +41,14 @@ describe("\\NGUC\\NgUploadChunked", function () {
         });
     });
 
-    describe("->upload", function () {
+    describe("->process", function () {
         beforeEach(function () {
             $_FILES['file']['name'] = $this->fileName;
             $_FILES['file']['tmp_name'] = $this->chunkPath;
         });
 
         it("should return false", function () {
-            $res = $this->nguc->upload($this->chunk);
+            $res = $this->nguc->process($this->chunk);
             expect($res)->to->be->false;
         });
     });
@@ -71,7 +71,7 @@ describe("\\NGUC\\NgUploadChunked", function () {
                 $this->fileSize * 2
             );
             // we make a unfinished upload
-            $this->nguc->upload($this->chunk);
+            $this->nguc->process($this->chunk);
 
             $res = $this->nguc->getUploadedSize($this->fileIdInProgress);
             expect($res)->to->be->equal(17);
@@ -90,10 +90,43 @@ describe("\\NGUC\\NgUploadChunked", function () {
                 $this->fileSize * 2
             );
 
-            $this->nguc->upload($this->chunk);
+            $this->nguc->process($this->chunk);
 
             $res = $this->nguc->abort($this->fileIdInProgress);
             expect($res)->to->be->true;
+        });
+    });
+
+    describe("->isFinished", function () {
+
+        it("should return true", function () {
+            $_FILES['file']['name'] = $this->fileName;
+            $_FILES['file']['tmp_name'] = $this->chunkPath;
+            
+            $this->chunk = new \NGUC\NgFileChunk(
+                $this->fileId,
+                $this->fileName, 20,
+                $this->fileSize, 0,
+                $this->fileSize
+            );
+            
+            $this->nguc->process($this->chunk);
+            expect($this->nguc->isFinished())->to->be->true;
+        });
+
+        it("should return false", function () {
+            $_FILES['file']['name'] = $this->fileName;
+            $_FILES['file']['tmp_name'] = $this->chunkPath;
+            // we fake the totalSize so the file is not moved
+            $this->chunk = new \NGUC\NgFileChunk(
+                $this->fileIdInProgress,
+                $this->fileName, 20,
+                $this->fileSize, 0,
+                $this->fileSize * 2
+            );
+            // we make a unfinished upload
+            $this->nguc->process($this->chunk);
+            expect($this->nguc->isFinished())->to->be->false;
         });
     });
 
