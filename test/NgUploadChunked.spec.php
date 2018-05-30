@@ -102,14 +102,14 @@ describe("\\NGUC\\NgUploadChunked", function () {
         it("should return true", function () {
             $_FILES['file']['name'] = $this->fileName;
             $_FILES['file']['tmp_name'] = $this->chunkPath;
-            
+
             $this->chunk = new \NGUC\NgFileChunk(
                 $this->fileId,
                 $this->fileName, 20,
                 $this->fileSize, 0,
                 $this->fileSize
             );
-            
+
             $this->nguc->process($this->chunk);
             expect($this->nguc->isFinished())->to->be->true;
         });
@@ -227,48 +227,22 @@ describe("\\NGUC\\NgUploadChunked", function () {
         });
     });
 
-    describe("_readUploadedChunk", function () {
+    describe("_readAndAppendChunk", function () {
         beforeEach(function () {
             // Get private method
-            $this->method = new \ReflectionMethod("\NGUC\NgUploadChunked", "readUploadedChunk");
-            $this->method->setAccessible(true);
-        });
-
-        it("should read the chunk", function () {
-            $_FILES['file']['tmp_name'] = $this->chunkPath;
-            try {
-                $data = $this->method->invokeArgs($this->nguc, []);
-            } catch (\NGUC\NGUCException $e) {
-                $data = $e;
-            }
-            expect($data)->to->be->equal("Hello im a chunk ");
-        });
-
-        it("should throw error when is unable to read the chunk", function () {
-            $_FILES['file']['tmp_name'] = __DIR__ . "/invalid.chunk";
-            try {
-                $exception = $this->method->invokeArgs($this->nguc, []);
-            } catch (\NGUC\NGUCException $e) {
-                $exception = $e;
-            }
-            expect($exception)->to->be->not->null;
-            expect($exception->getCode())->to->be->equal(\NGUC\NGUCException::CANT_READ_UPLD_CHUNK);
-        });
-    });
-
-    describe("_appendChunk", function () {
-        beforeEach(function () {
-            // Get private method
-            $this->method = new \ReflectionMethod("\NGUC\NgUploadChunked", "appendChunk");
+            $this->method = new \ReflectionMethod("\NGUC\NgUploadChunked", "readAndAppendChunk");
             $this->method->setAccessible(true);
         });
 
         it("should append chunk", function () {
             $path = $this->TEMP_DIR . "/append.chunk";
+            $uploadChunkPath = $this->TEMP_DIR . "/upload.chunk";
             file_put_contents($path, $this->data);
+            file_put_contents($uploadChunkPath, $this->data);
+            $_FILES['file']['tmp_name'] = $uploadChunkPath;
 
             try {
-                $this->method->invokeArgs($this->nguc, [$path, $this->data]);
+                $this->method->invokeArgs($this->nguc, [$path]);
             } catch (\NGUC\NGUCException $e) {
                 $res = $e;
             }
@@ -278,14 +252,28 @@ describe("\\NGUC\\NgUploadChunked", function () {
         });
 
         it("should throw error when is unable to append the chunk", function () {
+            $_FILES['file']['tmp_name'] = $this->chunkPath;
+
             try {
                 $invalidPath = $this->invalidPath . "/append.chunk";
-                $exception = $this->method->invokeArgs($this->nguc, [$invalidPath, $this->data]);
+                $exception = $this->method->invokeArgs($this->nguc, [$invalidPath]);
             } catch (\NGUC\NGUCException $e) {
                 $exception = $e;
             }
             expect($exception)->to->be->not->null;
             expect($exception->getCode())->to->be->equal(\NGUC\NGUCException::CANT_APPEND_CHUNK);
+        });
+
+        it("should throw error when is unable to read the chunk", function () {
+            $path = $this->TEMP_DIR . "/append.chunk";
+            $_FILES['file']['tmp_name'] = __DIR__ . "/invalid.chunk";
+            try {
+                $exception = $this->method->invokeArgs($this->nguc, [$path]);
+            } catch (\NGUC\NGUCException $e) {
+                $exception = $e;
+            }
+            expect($exception)->to->be->not->null;
+            expect($exception->getCode())->to->be->equal(\NGUC\NGUCException::CANT_READ_UPLD_CHUNK);
         });
     });
 

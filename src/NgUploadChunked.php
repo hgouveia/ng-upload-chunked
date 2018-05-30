@@ -133,13 +133,10 @@ class NgUploadChunked
         $filePath = $this->getFilePath($chunk->fileId);
         $destPath = $this->getUploadPath();
 
-        // 1. Read Uploaded chunk
-        $data = $this->readUploadedChunk();
+        // Read Uploaded chunk and Append to temporal file
+        $this->readAndAppendChunk($filePath);
 
-        // 2. Append chunk
-        $this->appendChunk($filePath, $data);
-
-        // 3. Check if file has been uploaded
+        // Check if file upload has been completed
         $this->moveWhenFinished($filePath, $destPath, $chunk->totalSize);
     }
 
@@ -229,16 +226,19 @@ class NgUploadChunked
 
     /**
      * Read the data from the file chunk uploaded
+     * And write it directly to the destination
      *
+     * @param string $path
+     * @param string $data
      * @throws NGUCException
-     * @return string data
+     * @return void
      */
-    protected function readUploadedChunk()
+    protected function readAndAppendChunk($path)
     {
-        $data = "";
         $key = $this->config['fileInputName'];
         $uploadedChunkPath = $_FILES[$key]['tmp_name'];
         $uploadHandler = @\fopen($uploadedChunkPath, "rb");
+        $writeHandler = @\fopen($path, "ab");
 
         if (!$uploadHandler) {
             throw new NGUCException(
@@ -247,36 +247,22 @@ class NgUploadChunked
             );
         }
 
-        while (!\feof($uploadHandler)) {
-            $data .= \fread($uploadHandler, $this->config['readChunkSize']);
-        }
-        \fclose($uploadHandler);
-
-        return $data;
-    }
-
-    /**
-     * Append chunk to the file
-     *
-     * @param string $path
-     * @param string $data
-     * @throws NGUCException
-     * @return void
-     */
-    protected function appendChunk($path, $data)
-    {
-        $handler = @\fopen($path, "ab");
-
-        if (!$handler) {
+        if (!$writeHandler) {
             throw new NGUCException(
                 "Couldn't append the data to path: {$path}",
                 NGUCException::CANT_APPEND_CHUNK
             );
         }
 
-        \fwrite($handler, $data);
-        \fclose($handler);
+        while (!\feof($uploadHandler)) {
+            $data = \fread($uploadHandler, $this->config['readChunkSize']);
+            \fwrite($writeHandler, $data);
+        }
+
+        \fclose($uploadHandler);
+        \fclose($writeHandler);
     }
+
 
     /**
      * Get the path of the file
