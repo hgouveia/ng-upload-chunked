@@ -327,6 +327,20 @@ describe("\\NGUC\\NgUploadChunked", function () {
             expect($exception)->to->be->not->null;
             expect($exception->getCode())->to->be->equal(\NGUC\NGUCException::NOT_UPLD_DIR);
         });
+
+        it("should replace the temporal directory with the upload directory, when temporal directory is disabled", function () {
+            $nguc = new \NGUC\NgUploadChunked([
+                "useTempDirectory" => false,
+                "uploadDirectory" => $this->UPLOAD_DIR,
+            ]);
+
+            $this->method = new \ReflectionMethod("\NGUC\NgUploadChunked", "prepareDirectories");
+            $this->method->setAccessible(true);
+            $this->method->invokeArgs($nguc, []);
+            $config = $nguc->getConfig();
+
+            expect($config['tempDirectory'])->to->be->equal($config['uploadDirectory']);
+        });
     });
 
     // used only to clean the file generated

@@ -38,6 +38,7 @@ class NgUploadChunked
         "fileInputName" => "file",
         "directoryPermission" => 0755,
         "readChunkSize" => 1048576, // 1MB
+        "useTempDirectory" => true,
         "uploadDirectory" => "",
         "tempDirectory" => "",
     ];
@@ -263,7 +264,6 @@ class NgUploadChunked
         \fclose($writeHandler);
     }
 
-
     /**
      * Get the path of the file
      * where the chunks are being appended
@@ -286,19 +286,24 @@ class NgUploadChunked
      */
     private function prepareDirectories()
     {
-        $defaultTempFolder = $this->getDefaultTempFolder();
         $chmod = $this->config['directoryPermission'];
 
-        // if not defined use default one
-        if (empty($this->config['tempDirectory'])) {
-            $this->config['tempDirectory'] = $defaultTempFolder;
-        } else if (!@\file_exists($this->config['tempDirectory'])) {
-            if (!@\mkdir($this->config['tempDirectory'], $chmod, true)) {
-                throw new NGUCException(
-                    "Temporal directory '{$this->config['tempDirectory']} with permission '{$chmod}', " .
-                    "couldn't be created",
-                    NGUCException::NOT_TEMP_DIR
-                );
+        // By default it will use a temporal folder
+        // to store the chunk while is been uploaded
+        if ($this->config['useTempDirectory']) {
+            $defaultTempFolder = $this->getDefaultTempFolder();
+
+            // if not defined use default one
+            if (empty($this->config['tempDirectory'])) {
+                $this->config['tempDirectory'] = $defaultTempFolder;
+            } elseif (!@\file_exists($this->config['tempDirectory'])) {
+                if (!@\mkdir($this->config['tempDirectory'], $chmod, true)) {
+                    throw new NGUCException(
+                        "Temporal directory '{$this->config['tempDirectory']} with permission '{$chmod}', " .
+                        "couldn't be created",
+                        NGUCException::NOT_TEMP_DIR
+                    );
+                }
             }
         }
 
@@ -307,7 +312,7 @@ class NgUploadChunked
             $this->config['uploadDirectory'] = !empty($_SERVER['DOCUMENT_ROOT'])
             ? $_SERVER['DOCUMENT_ROOT']
             : getcwd();
-        } else if (!@\file_exists($this->config['uploadDirectory'])) {
+        } elseif (!@\file_exists($this->config['uploadDirectory'])) {
             if (!@\mkdir($this->config['uploadDirectory'], $chmod, true)) {
                 throw new NGUCException(
                     "Upload directory '{$this->config['tempDirectory']} with permission '{$chmod}', " .
@@ -315,6 +320,13 @@ class NgUploadChunked
                     NGUCException::NOT_UPLD_DIR
                 );
             }
+        }
+
+        // if use of temporal folder is disabled
+        // we set as the upload directory, so it will
+        // been uploaded in the destination folder directly
+        if (!$this->config['useTempDirectory']) {
+            $this->config['tempDirectory'] = $this->config['uploadDirectory'];
         }
     }
 
