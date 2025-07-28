@@ -4,6 +4,7 @@
 [![Build Status](https://img.shields.io/travis/hgouveia/ng-upload-chunked/master.svg?style=flat-square "Build Status")](https://travis-ci.org/hgouveia/ng-upload-chunked)
 [![HHVM Build Status](https://img.shields.io/badge/hhvm-tested-brightgreen.svg?style=flat-square "HHVM Build Status")](https://travis-ci.org/hgouveia/ng-upload-chunked)
 [![Windows Build Status](https://img.shields.io/appveyor/ci/hgouveia/ng-upload-chunked/master.svg?label=windows&style=flat-square "Windows Build Status")](https://ci.appveyor.com/project/hgouveia/ng-upload-chunked)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fhgouveia%2Fng-upload-chunked.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fhgouveia%2Fng-upload-chunked?ref=badge_shield)
 
 
 Php implementation of the file chunked upload for the angular directive [ng-file-upload](https://github.com/danialfarid/ng-file-upload)
@@ -82,6 +83,9 @@ $ npm test
 ## License
 
 Read [License](LICENSE) for more licensing information.
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fhgouveia%2Fng-upload-chunked.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fhgouveia%2Fng-upload-chunked?ref=badge_large)
 
 ## Contributing
 
